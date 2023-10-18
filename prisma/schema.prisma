@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model Box {
+  id       Int       @id @default(autoincrement())
+  datetime DateTime
+  products Product[]
+  Stock    Stock[]
+  Remove   Remove[]
+}
+
+model Product {
+  id             Int          @id @default(autoincrement())
+  productsNameId Int
+  boxId          Int
+  quantityBox    Int
+  quantityItem   Int
+  box            Box          @relation(fields: [boxId], references: [id])
+  productsName   ProductsName @relation(fields: [productsNameId], references: [id])
+  stock          Stock[]
+  Remove         Remove[]
+}
+
+model ProductsName {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+}
+
+model Stock {
+  id               Int            @id @default(autoincrement())
+  boxId            Int
+  productsId       Int
+  shelfsSectionsId Int
+  box              Box            @relation(fields: [boxId], references: [id])
+  product          Product        @relation(fields: [productsId], references: [id])
+  shelfsSections   ShelfsSections @relation(fields: [shelfsSectionsId], references: [id])
+}
+
+model ShelfsSections {
+  id      Int      @id @default(autoincrement())
+  shelf   String
+  section Int
+  stock   Stock[]
+  Remove  Remove[]
+}
+
+model Remove {
+  id               Int            @id @default(autoincrement())
+  productsId       Int
+  boxId            Int
+  shelfsSectionsId Int
+  quantityBox      Int
+  datetime         DateTime
+  product          Product        @relation(fields: [productsId], references: [id])
+  box              Box            @relation(fields: [boxId], references: [id])
+  shelfsSections   ShelfsSections @relation(fields: [shelfsSectionsId], references: [id])
+}
